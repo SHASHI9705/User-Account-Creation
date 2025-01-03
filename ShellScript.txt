@@ -1,0 +1,48 @@
+#!/bin/bash
+
+
+
+if [[ "${UID}" -ne 0 ]]
+then
+        echo "Do it in root or sudo"
+fi
+
+
+if [[ "${#}" -lt 1 ]]
+then
+        echo "Usage: ${0} USER_NAME [COMMENT]...."
+        echo "Create a user with name USER_NAME and comment"
+        exit 1
+fi
+
+
+
+USER_NAME=${1}
+
+shift
+COMMENT=${@}
+
+PASSWORD=$(date +%s%N)
+
+useradd -c "${COMMENT}" -m $USER_NAME
+
+if [[ $? -ne 0 ]]
+then
+        echo "THE ACCOUNT COULD NOT CREATED"
+        exit 1
+fi
+
+echo "$USER_NAME:$PASSWORD" | sudo chpasswd
+
+if [[ $? -ne 0 ]]
+then
+        echo "PASSWORD NOT SET"
+        exit 1
+fi
+
+
+passwd -e $USER_NAME
+
+echo "Username: $USER_NAME"
+echo "Password: $PASSWORD"
+echo "HOSTNAME: $(hostname)"
